@@ -1,0 +1,870 @@
+
+<!-- saved from url=(0064)file:///C:/Users/13062/Desktop/joint-teapot/report/match1-1.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>E:/DesktopFiles/ENGR151-repos/ZongJunzhe521370910068-p1/p1.m</title>
+</head>
+<body bgcolor="white">
+<hr>
+E:/DesktopFiles/ENGR151-repos/ZhangXinyu521370910002-p1/p1/p1.m<p></p><pre>%% input
+[timestep,timeg,timey,timetp,timer,lroad,vm,rho,pnl,pnr,psl,psr,pel,per,pwl,pwr,stop,sldown]=input_inital()
+% add four initial values
+rho_n = rho;rho_s = rho;rho_e = rho;rho_w = rho;
+%% Timing parameters and intersection
+% timing signal
+cross_light13 = zeros(1,timeg+timey+timetp+timer);
+cross_light24 = cross_light13;
+%NS Generate green and yellow
+<a name="17"></a><font color="#0000FF"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#17" target="0"><img align="left" alt="other" border="0" src="./tm_2_2.gif"></a>
+
+cross_light13(1:timeg) = ones(1,timeg);
+cross_light13(timeg+1:timeg+timey) = 2*ones(1,timey);
+%EW
+cross_light24(timeg+timey+timetp+1:2*timeg+timey+timetp) = ones(1,timeg);
+cross_light24(2*timeg+timey+timetp+1:2*timeg+2*timey+timetp) = 2*ones(1,timey);
+L = 2*lroad + 2*vm + 2;
+square = zeros(L, L);
+square(L/2:L/2+1, L/2:L/2+1) = 1;
+D_car = zeros(L, L);
+</font><a name="26"></a><font color="#00FF00"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#26" target="0"><img align="left" alt="other" border="0" src="./tm_1_0.gif"></a>
+
+Car_1 = zeros(L, L); 
+Car_2 = zeros(L, L);
+cb_1=zeros(L, L);
+cb_2=zeros(L, L);
+Ve_1 = zeros(L, L);
+Ve_2 = zeros(L, L);
+%%
+%drawing
+cross = zeros(L, L);
+</font>cross(L/2+1,L/2 -vm:L/2 -1) = 1;             
+<a name="27"></a><font color="#0000FF"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#27" target="0"><img align="left" alt="other" border="0" src="./tm_2_0.gif"></a>
+
+cross(L/2+1,L/2 +2:L/2 +1+ vm) = 1;        %West-east
+</font><a name="24"></a><font color="#FF00FF"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#24" target="0"><img align="left" alt="other" border="0" src="./tm_4_0.gif"></a>
+
+cross(L/2,L/2 - vm:L/2 - 1) = 1;     
+cross(L/2,L/2+2:L/2+1+vm) = 1;           %East-west
+cross(L/2 - vm:L/2 - 1,L/2) =1;              
+</font><a name="29"></a><font color="#FF00FF"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#29" target="0"><img align="left" alt="other" border="0" src="./tm_4_0.gif"></a>
+
+cross(L/2+2:L/2 + 1 + vm, L/2) =1;          %North-south
+</font><a name="22"></a><font color="#0000FF"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#22" target="0"><img align="left" alt="other" border="0" src="./tm_2_0.gif"></a>
+
+cross(L/2 - vm:L/2 - 1,L/2+1) = 1;   
+cross(L/2+2:L/2 + 1 + vm, L/2+1) = 1;      %South-north
+road = zeros(L, L);
+</font><a name="19"></a><font color="#FF00FF"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#19" target="0"><img align="left" alt="other" border="0" src="./tm_4_1.gif"></a>
+
+road(L/2+1, L/2 + 2 + vm: L/2 + 1 + vm + lroad) = 1;
+road(L/2+1, L/2 - vm - lroad: L/2 - 1 - vm) = 1;    %West-east
+road(L/2, L/2 + 2 + vm: L/2 + 1 + vm + lroad) = 1; 
+</font>road(L/2, L/2 - vm - lroad: L/2 - 1 - vm) = 1;      %East-west
+<a name="20"></a><font color="#FF0000"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#20" target="0"><img align="left" alt="other" border="0" src="./tm_0_0.gif"></a>
+
+road(L/2-vm-lroad:L/2 -1 - vm, L/2) = 1;            
+road(L/2+2+vm:L/2 + 1+ vm + lroad , L/2) = 1;       %North-south
+road(L/2+2+vm:L/2 + 1+ vm + lroad , L/2 + 1) = 1;   
+</font><a name="23"></a><font color="#00FFFF"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#23" target="0"><img align="left" alt="other" border="0" src="./tm_3_0.gif"></a>
+
+road(L/2-vm-lroad:L/2 -1 - vm, L/2 +1) = 1;         %South-north
+</font>
+lay_str = zeros(L, L);  
+<a name="21"></a><font color="#00FF00"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#21" target="0"><img align="left" alt="other" border="0" src="./tm_1_0.gif"></a>
+
+lay_turn = zeros(L, L);  layer_t2 = lay_turn;
+
+t_n =  [1 2 3 7 10]; % integer flags indicating turn decisions
+t_s =  [4 5 6 8 12];
+t_e = [10 11 12 2 5];
+t_w = [7 8 9 3 6];
+Nt = [1 9 4 11];
+</font>%% Iterate
+Num=0;
+table_temp=0;
+<a name="14"></a><font color="#FF00FF"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#14" target="0"><img align="left" alt="other" border="0" src="./tm_4_3.gif"></a>
+
+[Index,S,m,~,e_char]=plate;
+for n=1:timestep
+    initial_count = sum(Car_1(:));           %Count all vehicles
+    Car_2 = 0*Car_2;    %Clear temp layer variables
+    cb_2=0*cb_2;
+    Ve_2 = 0*Ve_2;
+    layer_t2 = 0*layer_t2;
+    lay_str = 0*lay_str;
+    D_car = 0*D_car;
+    bf = 0;
+    %% Generate new vehicles at approaches
+    %Four directions
+    mix=0;
+    if  rand &lt; rho_s &amp;&amp; Car_1(1,L/2) == 0
+        
+        while mix~=1
+            Num=Num+1;
+            char=Index(S(Num),:);
+            mix=isletter_all(char);
+            if mix==1
+                table_temp=table_temp+1;
+                table(table_temp)=char_str(char,e_char);
+                cb_1(1,L/2) = table_temp;
+            end
+        end
+        
+        initial_count = initial_count + 1;
+        Car_1(1,L/2) = 1;
+        
+        Ve_1(1,L/2) = round(vm*rand);
+        turn_rand = rand;
+        if turn_rand &lt; psl
+            lay_turn(1,L/2) = 5;%N-&gt;E
+        else
+            if turn_rand &lt; psl + psr
+                lay_turn(1,L/2) = 6;%N-&gt;W
+            else
+                lay_turn(1,L/2) = 4;%N-&gt;S
+            end
+        end
+    end
+</font>    
+<a name="15"></a><font color="#FF0000"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#15" target="0"><img align="left" alt="other" border="0" src="./tm_0_2.gif"></a>
+
+    if rand &lt; rho_n &amp;&amp; Car_1(L,L/2+1) == 0
+        while mix~=1
+            Num=Num+1;
+            char=Index(S(Num),:);
+            mix=isletter_all(char);
+            if mix==1
+                table_temp=table_temp+1;
+                table(table_temp)=char_str(char,e_char);
+                cb_1(L,L/2+1)  = table_temp;
+            end
+        end
+        
+        
+        initial_count = initial_count + 1;
+        Car_1(L,L/2+1) = 1;
+        Ve_1(L,L/2+1) = round(vm*rand);
+        turn_rand = rand;
+        if turn_rand &lt; pnl
+            lay_turn(L,L/2+1) = 3;%S-&gt;W
+        else
+            if turn_rand &lt; pnl + pnr
+                lay_turn(L,L/2+1) = 2;%S-&gt;E
+            else
+                lay_turn(L,L/2+1) = 1;%S-&gt;N
+            end
+        end
+    end
+</font>    
+<a name="16"></a><font color="#00FF00"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#16" target="0"><img align="left" alt="other" border="0" src="./tm_1_2.gif"></a>
+
+   if rand &lt; rho_w  &amp;&amp; Car_1(L/2,L) == 0
+        while mix~=1
+            Num=Num+1;
+            char=Index(S(Num),:);
+            mix=isletter_all(char);
+            if mix==1
+                table_temp=table_temp+1;
+                table(table_temp)=char_str(char,e_char);
+                cb_1(L/2,L)  = table_temp;
+            end
+        end
+        
+        
+        initial_count = initial_count + 1;
+        Car_1(L/2,L) = 1;
+        Ve_1(L/2,L) = round(vm*rand);
+        turn_rand = rand;
+        if turn_rand &lt; pwl
+            lay_turn(L/2,L) = 8;%E-&gt;S
+        else
+            if turn_rand &lt; pwl + pwr
+                lay_turn(L/2,L) = 7;%E-&gt;N
+            else
+                lay_turn(L/2,L) = 9;%E-&gt;W
+            end
+        end
+   end
+</font>    
+<a name="2"></a><font color="#0000FF"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#2" target="0"><img align="left" alt="other" border="0" src="./tm_2_6.gif"></a>
+
+   if rand &lt; rho_e &amp;&amp; Car_1(L/2+1,1) == 0 %Don't generate cars inside intersection
+        while mix~=1
+            Num=Num+1;
+            char=Index(S(Num),:);
+            mix=isletter_all(char);
+            if mix==1
+                table_temp=table_temp+1;
+                table(table_temp)=char_str(char,e_char);
+                cb_1(L/2+1,1)  = table_temp;
+            end
+        end
+        
+        initial_count = initial_count + 1;
+        Car_1(L/2+1,1) = 1;
+        Ve_1(L/2+1,1) = round(vm*rand);
+        turn_rand = rand;
+        if turn_rand &lt; pel
+            lay_turn(L/2+1,1) = 10;%W-&gt;N
+        else
+            if turn_rand &lt; pel + per
+                lay_turn(L/2+1,1) = 12;%W-&gt;S
+            else
+                lay_turn(L/2+1,1) = 11;%W-&gt;E
+            end
+        end
+    end
+   
+    %% Again four
+    stNS = cross_light13(1+mod(n,length(cross_light13)));
+    stEW = cross_light24(1+mod(n,length(cross_light24)));
+    for i=1:L
+        if Car_1(i, L/2) == 1 &amp;&amp;  (lay_turn(i,L/2) == 4 || lay_turn(i,L/2) == 5)  &amp;&amp; stNS == 1
+            found_next = 0;
+            distance = vm + 1;
+            for j=i+1:i+vm
+                if j &lt;= L
+                    entering_intersection = (j &gt;= L/2 &amp;&amp; i &lt; L/2);
+                    intersection_occupied = lay_turn(L/2+1, L/2) == 10 ||  lay_turn(L/2+1, L/2) == 5 || lay_turn(L/2+1, L/2) == 11;
+                    yielding = entering_intersection &amp;&amp; intersection_occupied;
+                    if Car_1(j, L/2) == 1    %
+                        distance = j-i; found_next = 1;
+                    elseif lay_turn(i,L/2) == 5 &amp;&amp; (j &gt;= L/2 + 2) %Stopping to turn left
+                        distance = j-i; found_next = 1;
+                    elseif yielding
+                        distance = j-i; found_next = 1;
+                    else
+                        lay_str(j,L/2) = 1;
+                    end
+                else %Implement deletion rate
+                    if rand &gt; 1
+</font>                        distance = L - i + 1;
+                    end
+                end
+                if found_next, break
+            end
+            D_car(i, L/2) = distance;
+        end
+    end
+
+<a name="11"></a><font color="#00FF00"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#11" target="0"><img align="left" alt="other" border="0" src="./tm_1_3.gif"></a>
+
+        if Car_1(i, L/2+1) == 1 &amp;&amp;  (lay_turn(i,L/2+1) == 1 || lay_turn(i,L/2+1) == 3) &amp;&amp; stNS == 1
+            %Seek forward to find distance to next car
+            distance = vm + 1;
+            found_next = 0;
+            for j=i-1:-1:i-vm
+                if j &gt; 0
+                    entering_intersection = (j &lt;= L/2+1 &amp;&amp; i &gt; L/2 + 1);
+                    intersection_occupied = lay_turn(L/2, L/2+1) == 8 ||  lay_turn(L/2, L/2+1) == 3 ||  lay_turn(L/2, L/2+1) == 9; %Left turn or straight-through vehicle  on other side of intersection
+                    yielding = entering_intersection &amp;&amp; intersection_occupied;
+                    if Car_1(j, L/2+1) == 1
+                        distance = i-j; found_next = 1;
+                    elseif yielding
+                        distance = i-j; found_next = 1;
+                    elseif lay_turn(i, L/2+1) == 3 &amp;&amp;  (j &lt;= L/2-1 ) %Turning left
+                        distance = i-j; found_next = 1;
+                    else
+                        lay_str(j,L/2+1) = 1;
+                    end
+                else %Implement deletion rate
+                    if rand &gt; 1
+</font>                        distance = i;
+                    end
+                end
+                if found_next, break
+            end
+            D_car(i, L/2+1) = distance;
+        end
+    end
+    
+<a name="13"></a><font color="#00FFFF"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#13" target="0"><img align="left" alt="other" border="0" src="./tm_3_3.gif"></a>
+
+        if Car_1(L/2,i) == 1 &amp;&amp;  (lay_turn(L/2,i) == 9 || lay_turn(L/2,i) == 8) &amp;&amp; stEW == 1
+            %Seek forward to find distance to next car
+            distance = vm + 1;
+            found_next = 0;
+            for j=i-1:-1:i-vm
+                if j &gt; 0
+                    entering_intersection = (j &lt;= L/2+1 &amp;&amp; i &gt; L/2 + 1);
+                    intersection_occupied = lay_turn(L/2, L/2) == 4 ||  lay_turn(L/2, L/2) == 8 ||  lay_turn(L/2, L/2) == 5;
+                    yielding = entering_intersection &amp;&amp; intersection_occupied;
+                    if Car_1(L/2,j) == 1
+                        distance = i-j; found_next = 1;
+                    elseif yielding
+                        distance = i-j; found_next = 1;
+                    elseif lay_turn(L/2,i) == 8 &amp;&amp;  (j == L/2-1) %Turning left
+                        distance = i-j; found_next = 1;
+                    else
+                        lay_str(L/2,j) = 1;
+                    end
+                else %Implement deletion rate
+                    if rand &gt; 1
+</font>                        distance = i;
+                    end
+                end
+                if found_next, break
+            end
+            D_car(L/2,i) = distance;
+        end
+    end
+
+<a name="12"></a><font color="#0000FF"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#12" target="0"><img align="left" alt="other" border="0" src="./tm_2_3.gif"></a>
+
+        if Car_1(L/2+1,i) == 1 &amp;&amp;  (lay_turn(L/2+1,i) == 11 || lay_turn(L/2+1,i) == 10) &amp;&amp; stEW == 1
+            %Seek forward to find distance to next car
+            distance = vm + 1;
+            found_next = 0;
+            for j=i+1:i+vm
+                if j &lt;= L
+                    entering_intersection = (j &gt;= L/2 &amp;&amp; i &lt; L/2 );
+                    intersection_occupied = lay_turn(L/2+1, L/2+1) == 10 ||  lay_turn(L/2+1, L/2+1) == 1 ||  lay_turn(L/2+1, L/2+1) == 3;
+                    yielding = entering_intersection &amp;&amp; intersection_occupied;
+                    if Car_1(L/2+1,j) == 1
+                        distance = j-i; found_next = 1;
+                    elseif yielding
+                        distance = j-i; found_next = 1;
+                    elseif lay_turn(L/2+1,i) == 10 &amp;&amp;  (j &gt;= L/2 + 2) %Turning left
+                        distance = j-i; found_next = 1;
+                    else
+                        
+                        lay_str(L/2+1,j) = 1;
+                        
+                    end
+                else %Implement deletion rate
+</font>                    if rand &gt; 1
+                        distance = L - i + 1;
+                    end
+                end
+                if found_next, break
+            end
+<a name="5"></a><font color="#FF0000"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#5" target="0"><img align="left" alt="other" border="0" src="./tm_0_5.gif"></a>
+
+            D_car(L/2+1,i) = distance;
+        end
+    end
+    %%low priority
+    for i=1:L
+        is_southbound = ismember(lay_turn(i,L/2),t_s);
+        is_lowpriority = ~ismember(lay_turn(i,L/2),Nt) || ~(stNS==1);
+        if is_southbound &amp;&amp; is_lowpriority
+            left = lay_turn(i,L/2) == 5;            %Turning left
+            straight = lay_turn(i,L/2) == 4;      %Travelling straight
+            right = lay_turn(i,L/2) == 6;          %Turning right
+            if stNS == 0 || stNS == 2
+                if rand&gt;stop
+                    red_or_yellow = 1;        %Light is yellow or red
+                else
+                    red_or_yellow = 0;
+                end
+            end
+            at_intersection = i == L/2-1;                       %Currently at intersection
+            waiting_for_red = (left || straight) &amp;&amp; red_or_yellow &amp;&amp; at_intersection;
+            intersection_occupied = lay_turn(L/2, L/2+1) == 3 ||  lay_turn(L/2, L/2+1) == 9 ||  lay_turn(L/2, L/2+1) == 8;
+            distance = vm + 1;
+            bf = 0;
+            for j=i+1:i+vm
+                if j &lt;= L
+                    occupied = Car_1(j, L/2) == 1;
+                    priority = (lay_str(j,L/2)~=0);
+                    entering_intersection = (j &gt;= L/2 &amp;&amp; i &lt; L/2);
+                    arriving_at_stop = red_or_yellow &amp;&amp; entering_intersection &amp;&amp; ~at_intersection;
+                    yielding = entering_intersection &amp;&amp; intersection_occupied &amp;&amp; ~left;
+                    turning_left = left &amp;&amp; (j &gt;= L/2 + 2);
+                    turning_right = right &amp;&amp; (j &gt;= L/2+1);
+                    if occupied || priority || arriving_at_stop || turning_left || turning_right || yielding || waiting_for_red
+                        distance = j-i; bf = 1;
+                    end
+                else %Implement deletion rate
+                    if rand &gt; 1
+</font>                        distance = L - i + 1;
+                    end
+                end
+                if bf == 1, break
+            end
+<a name="30"></a><font color="#FF0000"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#30" target="0"><img align="left" alt="other" border="0" src="./tm_0_0.gif"></a>
+
+            if D_car(i,L/2) &lt; distance %
+                D_car(i,L/2) = distance;
+            end
+        end
+    end
+    
+    for i=1:L
+        is_northbound = ismember(lay_turn(i,L/2+1),t_n);
+</font><a name="7"></a><font color="#0000FF"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#7" target="0"><img align="left" alt="other" border="0" src="./tm_2_4.gif"></a>
+
+        if is_northbound &amp;&amp; is_lowpriority
+            left = lay_turn(i,L/2+1) == 3;            %Turning left
+            straight = lay_turn(i,L/2+1) == 1;      %Travelling straight
+            right = lay_turn(i,L/2+1) == 2;          %Turning right
+            if stNS == 0 || stNS == 2
+                if rand&gt;stop
+                    red_or_yellow = 1;        %Light is yellow or red
+                else
+                    red_or_yellow = 0;
+                end
+            end
+            
+            at_intersection = i == L/2+2;
+            waiting_for_red = (left || straight) &amp;&amp; red_or_yellow &amp;&amp; at_intersection;
+            intersection_occupied = lay_turn(L/2+1, L/2) == 11 || lay_turn(L/2+1, L/2) == 5 || lay_turn(L/2+1, L/2) == 10;
+            distance = vm + 1;
+            bf = 0;
+            for j=i-1:-1:i-vm
+                if j &gt; 0
+                    occupied = Car_1(j, L/2+1) == 1;
+                    priority = (lay_str(j,L/2+1)~=0);
+                    entering_intersection = (j &lt;= L/2+1 &amp;&amp; i &gt; L/2 + 1);
+                    arriving_at_stop = red_or_yellow &amp;&amp; entering_intersection &amp;&amp; ~at_intersection;
+                    yielding = entering_intersection &amp;&amp; intersection_occupied &amp;&amp; ~left;
+                    turning_left = left &amp;&amp; (j &lt;= L/2-1 );
+                    turning_right = right &amp;&amp; (j &lt;= L/2);
+                    if occupied || priority || arriving_at_stop || turning_left || turning_right || yielding || waiting_for_red
+                        distance = i-j; bf=1;
+                    end
+                else %Implement deletion rate
+                    if rand &gt; 1
+</font>                        distance = i;
+                    end
+                end
+                if bf == 1, break
+            end
+<a name="25"></a><font color="#FF0000"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#25" target="0"><img align="left" alt="other" border="0" src="./tm_0_0.gif"></a>
+
+            if  D_car(i,L/2+1) &lt; distance
+                D_car(i,L/2+1) = distance;
+            end
+        end
+    end
+    
+    for i=1:L
+        is_westbound = ismember(lay_turn(L/2,i),t_w);
+</font><a name="8"></a><font color="#00FFFF"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#8" target="0"><img align="left" alt="other" border="0" src="./tm_3_4.gif"></a>
+
+        if is_westbound &amp;&amp; is_lowpriority 
+            left = lay_turn(L/2,i) == 8;            %Turning left
+            straight = lay_turn(L/2,i) == 9;      %Travelling straight
+            right = lay_turn(L/2,i) == 7;          %Turning right
+            if stEW == 0 || stEW == 2
+                if rand&gt;stop
+                    red_or_yellow = 1;        %Light is yellow or red
+                else
+                    red_or_yellow = 0;
+                end
+            end
+            
+            at_intersection = i == L/2+2;                       %Currently at intersection
+            waiting_for_red = (left || straight) &amp;&amp; red_or_yellow &amp;&amp; at_intersection;
+            intersection_occupied = lay_turn(L/2+1, L/2+1) == 1 || lay_turn(L/2+1, L/2+1) == 10|| lay_turn(L/2+1, L/2+1) == 3; %Left turn or straight-through vehicle  at 9 o'clock in intersection
+            distance = vm + 1;
+            bf = 0;
+            for j=i-1:-1:i-vm
+                if j &gt;0
+                    occupied = Car_1(L/2,j) == 1;
+                    priority = (lay_str(L/2,j)~=0);
+                    entering_intersection = (j &lt;= L/2+1 &amp;&amp; i &gt; L/2 + 1);
+                    arriving_at_stop = red_or_yellow &amp;&amp; entering_intersection &amp;&amp; ~at_intersection;
+                    yielding = entering_intersection &amp;&amp; intersection_occupied &amp;&amp; ~left;
+                    turning_left = left &amp;&amp; (j == L/2-1);
+                    turning_right = right &amp;&amp; (j &lt;= L/2);
+                    if occupied || priority || arriving_at_stop || turning_left || turning_right || yielding || waiting_for_red
+                        distance = i-j; bf=1;
+                    end
+                else %Implement deletion rate
+                    if rand &gt; 1
+</font>                        distance = i;
+                    end
+                end
+                if bf == 1, break
+            end
+<a name="28"></a><font color="#00FFFF"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#28" target="0"><img align="left" alt="other" border="0" src="./tm_3_0.gif"></a>
+
+            if D_car(L/2,i) &lt; distance
+                D_car(L/2,i) = distance;
+            end
+        end
+    end
+    
+    for i=1:L
+        is_eastbound = ismember(lay_turn(L/2+1,i),t_e);
+</font><a name="9"></a><font color="#FF00FF"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#9" target="0"><img align="left" alt="other" border="0" src="./tm_4_4.gif"></a>
+
+        if  is_eastbound &amp;&amp; is_lowpriority
+            left = lay_turn(L/2+1,i) == 10;            %Turning left
+            straight = lay_turn(L/2+1,i) == 11;      %Travelling straight
+            right = lay_turn(L/2+1,i) == 12;          %Turning right
+            if stEW == 0 || stEW == 2
+                if rand&gt;stop
+                    red_or_yellow = 1;        %Light is yellow or red
+                else
+                    red_or_yellow = 0;
+                end
+            end
+            at_intersection = i == L/2-1;
+            waiting_for_red = (left || straight) &amp;&amp; red_or_yellow &amp;&amp; at_intersection;
+            intersection_occupied = lay_turn(L/2, L/2) ==  4 || lay_turn(L/2, L/2) == 8 || lay_turn(L/2, L/2) ==  5;%Left turn or straight-through vehicle  at 9 o'clock in intersection
+            distance = vm + 1;
+            bf = 0;
+            for j=i+1:i+vm
+                if j &lt;= L
+                    occupied = Car_1(L/2+1,j) == 1;
+                    priority = (lay_str(L/2+1,j)~=0);
+                    entering_intersection = (j &gt;= L/2 &amp;&amp; i &lt; L/2 );
+                    arriving_at_stop = red_or_yellow &amp;&amp; entering_intersection &amp;&amp; ~at_intersection;
+                    yielding = entering_intersection &amp;&amp; intersection_occupied &amp;&amp; ~left;
+                    turning_left = left &amp;&amp; (j &gt;= L/2 + 2);
+                    turning_right = right &amp;&amp; (j &gt;= L/2 + 1);
+                    if occupied || priority || arriving_at_stop || turning_left || turning_right || yielding || waiting_for_red
+                        distance = j-i; bf=1;
+                    end
+                else 
+                    if rand &gt; 1
+</font>                        distance = L - i + 1;
+                    end
+                end
+                if bf == 1, break
+<a name="4"></a><font color="#FF00FF"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#4" target="0"><img align="left" alt="other" border="0" src="./tm_4_5.gif"></a>
+
+            end
+            if  D_car(L/2+1,i) &lt; distance
+                D_car(L/2+1,i) = distance;
+            end
+        end
+    end
+    %% Southbound movement
+    crash=0;
+    for i=1:L
+        if Car_1(i,L/2)==1 &amp;&amp; ismember(lay_turn(i,L/2),t_s)
+            distance = D_car(i,L/2);
+            %1. Acceleration
+            if Ve_1(i,L/2) &lt; vm &amp;&amp; distance &gt; Ve_1(i,L/2)+1
+                Ve_1(i,L/2) = Ve_1(i,L/2)+1;
+            end
+            %2. Braking
+            if sldown==1
+                
+                if distance &lt;= Ve_1(i,L/2)
+                    if distance &gt; 0
+                        Ve_1(i,L/2) = distance -1;
+                    else
+                        
+                        Ve_1(i,L/2) = 0;
+                    end
+                end
+                
+            else
+                if distance&lt;1
+                    crash=1;
+                end
+            end
+            %3. Motion
+            if i+Ve_1(i,L/2) &lt;= L &amp;&amp; ~(i== L/2 &amp;&amp; lay_turn(i,L/2) == 6) &amp;&amp; ~(i== L/2+1 &amp;&amp; lay_turn(i,L/2) == 5)
+                Car_2(i+Ve_1(i,L/2),L/2) = 1;
+                cb_2(i+Ve_1(i,L/2),L/2) = cb_1(i,L/2);
+                Ve_2(i+Ve_1(i,L/2),L/2) = Ve_1(i,L/2);
+                layer_t2(i+Ve_1(i,L/2),L/2) = lay_turn(i,L/2);
+                if Car_1(i+Ve_1(i,L/2),L/2) == 1 &amp;&amp; Ve_1(i,L/2) ~= 0%Crash detection
+                    disp('crash')
+                    return;
+                end
+                
+            elseif i+Ve_1(i,L/2) &gt; L
+                initial_count = initial_count - 1;
+</font>            end
+            
+        end
+        
+<a name="3"></a><font color="#00FFFF"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#3" target="0"><img align="left" alt="other" border="0" src="./tm_3_6.gif"></a>
+
+        if Car_1(i,L/2+1) == 1 &amp;&amp; ismember(lay_turn(i,L/2+1),t_n)
+            distance = D_car(i,L/2+1);
+            %1. Acceleration
+            if Ve_1(i,L/2+1) &lt; vm &amp;&amp; distance &gt; Ve_1(i,L/2+1)+1
+                Ve_1(i,L/2+1) = Ve_1(i,L/2+1)+1;
+            end
+            %2. Braking
+            if sldown==1
+                if distance &lt;= Ve_1(i,L/2+1)
+                    if distance &gt; 0
+                        Ve_1(i,L/2+1) = distance -1;
+                    else
+                        Ve_1(i,L/2+1) = 0;
+                        
+                    end
+                end
+                
+            else
+                if distance&lt;1
+                    crash=1;
+                end
+            end
+            
+            if  i-Ve_1(i,L/2+1) &gt; 0 &amp;&amp; ~(i== L/2 &amp;&amp; lay_turn(i,L/2+1) == 3) &amp;&amp; ~(i== L/2+1 &amp;&amp; lay_turn(i,L/2+1) == 2)
+                Car_2(i-Ve_1(i,L/2+1),L/2+1) = 1;
+                cb_2(i-Ve_1(i,L/2+1),L/2+1) = cb_1(i,L/2+1);
+                Ve_2(i-Ve_1(i,L/2+1),L/2+1) = Ve_1(i,L/2+1);
+                layer_t2(i-Ve_1(i,L/2+1),L/2+1) = lay_turn(i,L/2+1);
+                if Car_1(i-Ve_1(i,L/2+1),L/2+1) == 1 &amp;&amp; Ve_1(i,L/2+1) ~= 0%Crash detection
+                    disp('crash')
+                    return;
+                end
+                
+                
+                
+            elseif i-Ve_1(i,L/2+1) &lt;= 0
+                initial_count = initial_count - 1;
+</font>            end
+            
+        end
+
+
+<a name="6"></a><font color="#00FF00"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#6" target="0"><img align="left" alt="other" border="0" src="./tm_1_5.gif"></a>
+
+        if Car_1(L/2,i) == 1 &amp;&amp; ismember(lay_turn(L/2,i),t_w)
+            distance = D_car(L/2,i);
+            %1. Acceleration
+            if Ve_1(L/2,i) &lt; vm &amp;&amp; distance &gt; Ve_1(L/2,i)+1
+                Ve_1(L/2,i) = Ve_1(L/2,i)+1;
+            end
+            %2. Braking
+            if sldown==1
+                if distance &lt;= Ve_1(L/2,i)
+                    if distance &gt; 0
+                        Ve_1(L/2,i) = distance -1;
+                    else
+                        
+                        Ve_1(L/2,i) = 0;
+                    end
+                end
+                
+            else
+                if distance&lt;1
+                    crash=1;
+                end
+            end
+            
+            if  i-Ve_1(L/2,i) &gt; 0 &amp;&amp; ~(i == L/2 &amp;&amp; lay_turn(L/2,i) == 8) &amp;&amp; ~ (i== L/2+1 &amp;&amp; lay_turn(L/2,i) == 7)
+                Car_2(L/2,i-Ve_1(L/2,i)) = 1;
+                cb_2(L/2,i-Ve_1(L/2,i)) = cb_1(L/2,i);
+                Ve_2(L/2,i-Ve_1(L/2,i)) = Ve_1(L/2,i);
+                layer_t2(L/2,i-Ve_1(L/2,i)) = lay_turn(L/2,i);
+               if Car_1(L/2,i-Ve_1(L/2,i)) == 1  &amp;&amp; Ve_1(L/2,i) ~= 0%Crash detection
+            disp('crash')   
+               end
+                
+            elseif  i-Ve_1(L/2,i) &lt;= 0
+                initial_count = initial_count - 1;
+            end
+</font>            
+        end
+   
+<a name="1"></a><font color="#00FF00"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#1" target="0"><img align="left" alt="other" border="0" src="./tm_1_6.gif"></a>
+
+        if Car_1(L/2+1,i) == 1 &amp;&amp; ismember(lay_turn(L/2+1,i),t_e)
+            distance = D_car(L/2+1,i);
+            %1. Acceleration
+            if Ve_1(L/2+1,i) &lt; vm &amp;&amp; distance &gt; Ve_1(L/2+1,i)+1
+                Ve_1(L/2+1,i) = Ve_1(L/2+1,i)+1;
+            end
+            
+            if sldown==1
+                %2. Braking
+                if distance &lt;= Ve_1(L/2+1,i)
+                    if distance &gt; 0
+                        Ve_1(L/2+1,i) = distance -1;
+                    else
+                        Ve_1(L/2+1,i) = 0;
+                        
+                    end
+                end
+                
+            else
+                if distance&lt;1
+                    crash=1;
+                end
+            end
+           
+            if  i+Ve_1(L/2+1,i) &lt;= L &amp;&amp; ~(i== L/2 &amp;&amp; lay_turn(L/2+1,i) == 12) &amp;&amp; ~(i== L/2+1 &amp;&amp; lay_turn(L/2+1,i) == 10)
+                Car_2(L/2+1,i+Ve_1(L/2+1,i)) = 1;
+                cb_2(L/2+1,i+Ve_1(L/2+1,i)) = cb_1(L/2+1,i);
+                Ve_2(L/2+1,i+Ve_1(L/2+1,i)) = Ve_1(L/2+1,i);
+                layer_t2(L/2+1,i+Ve_1(L/2+1,i)) = lay_turn(L/2+1,i);
+             if Car_1(L/2+1,i+Ve_1(L/2+1,i)) == 1  &amp;&amp; Ve_1(L/2+1,i) ~= 0 %Crash detection
+            disp('crash')   
+             end
+                
+            elseif i+Ve_1(L/2+1,i) &gt; L
+                initial_count = initial_count - 1;
+            end
+            
+        end
+    end
+    %% Update and  state, perform checks, sample.
+    
+    %Update state
+    Car_1 = Car_2;
+    Ve_1 = Ve_2;
+    lay_turn = layer_t2;
+    cb_1=cb_2;
+</font>    
+    %% calculation of car still moving at red light
+    WN=0; clear Note(WN);
+    Note(WN)=[];
+<a name="10"></a><font color="#FF0000"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#10" target="0"><img align="left" alt="other" border="0" src="./tm_0_3.gif"></a>
+
+    [color1,color2]=color(stNS,stEW);
+    if strcmp(color1,'red')    
+        if Ve_1(L/2,L/2+2)&gt;0
+            WN=WN+1;
+            Note(WN)=cb_1(L/2,L/2+2);
+            
+        elseif Ve_1(L/2+1,L/2-1)&gt;0
+            
+            WN=WN+1;
+            Note(WN)=cb_1(L/2+1,L/2-1);
+        end
+        
+    elseif strcmp(color2,'red')
+        if Ve_1(L/2-1,L/2)&gt;0
+            WN=WN+1;
+            Note(WN)=cb_1(L/2-1,L/2);
+            
+        elseif Ve_1(L/2+2,L/2+1)&gt;0
+            
+            WN=WN+1;
+            Note(WN)=cb_1(L/2+2,L/2+1);
+        end
+        
+    end
+    
+    clf
+    mcar(road,square,cross,Car_1,L,color1,color2);
+    drawnow
+    pause(.01)
+end
+fprintf('Cars not stop at the traffic light: %s\n',table(Note))
+
+%% mcar
+function h=mcar(road,square,cross,Car,L,color1,color2)
+
+h = imshow(road+square+cross-Car, 'InitialMagnification', 'fit');
+plotc(L/2-2,L/2-2,1,color1)
+</font><a name="0"></a><font color="#FF0000"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#0" target="0"><img align="left" alt="other" border="0" src="./tm_0_7.gif"></a>
+
+hold on
+plotc(L/2-2,L/2+3,1,color2)
+hold on
+plotc(L/2+3,L/2+3,1,color1)
+hold on
+plotc(L/2+3,L/2-2,1,color2)
+
+
+end
+
+
+%% Generate Registration plates of cars
+
+function [string_char]=char_str(char,eng_char)
+
+string_char=string([eng_char(randi(24,1)),char]);
+
+end
+
+function [Index,S,m,n,eng_char]=plate
+
+eng_char = ['A','B','C','D','E','F','G','H','J','K','L','M','N','P','Q',...
+    'R','S','T','U','V','W','X','Y', 'Z'];
+
+num_char = ['0','1','2','3','4','5','6','7','8','9'];
+new=[eng_char,num_char];
+[x1,x2,x3,x4,x5]=ndgrid(new);
+Index = [x1(:) x2(:) x3(:) x4(:) x5(:)];
+[m,n]=size(Index);
+S=randperm(m,m);
+end
+
+function A=isletter_all(char)
+k=0;
+nk=0;
+for i=1:5
+    x=isletter(char(i));
+    if x==1
+        k=k+1;
+    elseif x==0
+        nk=nk+1;
+    end
+    if k==5 || nk==5
+        A=0;
+    else
+        A=1;
+    end
+    
+end
+end
+
+
+%% plot traffic light
+
+function plotc(x,y,r,color)
+a=0:pi/40:2*pi;
+x1=x+r*cos(a);
+y1=y+r*sin(a);
+plot(x1,y1,'-');
+axis equal
+fill(x1,y1,color);
+end
+
+function [color1,color2]=color(stNS,stEW)
+switch stNS
+    case 0
+        
+        color1='red';
+    case 1
+        
+        color1='Green';
+    case 2
+        
+        color1='Yellow';
+end
+
+switch stEW
+    case 0
+        
+        color2='red';
+        
+    case 1
+        
+        color2='Green';
+    case 2
+        
+        color2='Yellow';
+end
+end
+
+function [timestep,timeg,timey,timetp,timer,lroad,vm,rho,pnl,pnr,psl,psr,pel,per,pwl,pwr,stop,sldown]=input_inital()
+</font><a name="18"></a><font color="#00FFFF"><a href="file:///C:/Users/13062/Desktop/joint-teapot/report/match1-0.html#18" target="0"><img align="left" alt="other" border="0" src="./tm_3_1.gif"></a>
+
+lroad = input( 'road length? \n');                %The length of road
+vm = input( 'Max velocity? \n');                        %The maximum velocity in cells/timestep
+timestep = input( 'simulation time (integ)? \n');         %Length of simulation
+timeg = input( 'green time (integ)? \n');             %# simulation steps of the green light
+timey = input( 'yellow time (integ)? \n');            %# simulation steps of the yellow light
+timetp = input( 'temp time (integ)? \n');             %# simulation steps of the red pause (when both lights are red)
+timer = timeg + timey + timetp;
+stop=input( 'P when car not stop at red light? \n');  % possiblility of car not stop at red light
+P = input( 'allow turn (=0 ,not allow, otherwise give the possiblility) \n');
+pnl = P;
+pnr = P;
+psl = P;
+psr = P;
+pel = P;
+per = P;
+pwl = P;
+pwr = P;
+rho = input( 'car density (&lt;1)? \n');
+sldown=input( 'allow slow down (=1 , allow, otherwise not allow \n');
+</font>end
+</pre>
+
+
+</body></html>
